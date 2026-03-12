@@ -31,7 +31,6 @@
 		A1B1C1D20010 /* SharedAppData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppData.swift; sourceTree = "<group>"; };
 		A1B1C1D20011 /* App1ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App1ListView.swift; sourceTree = "<group>"; };
 		A1B1C1D20012 /* App2ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App2ListView.swift; sourceTree = "<group>"; };
-		BBF277782F61F5AD00871EFD /* ApiKeys.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ApiKeys.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,7 +51,6 @@
 			children = (
 				A1B1C1D60002 /* SampleApp */,
 				A1B1C1D60003 /* Products */,
-				BBF277782F61F5AD00871EFD /* ApiKeys.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -190,7 +188,6 @@
 /* Begin XCBuildConfiguration section */
 		A1B1C1DA0001 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BBF277782F61F5AD00871EFD /* ApiKeys.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -222,7 +219,6 @@
 		};
 		A1B1C1DA0002 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BBF277782F61F5AD00871EFD /* ApiKeys.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -248,7 +244,6 @@
 		};
 		A1B1C1DA0003 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BBF277782F61F5AD00871EFD /* ApiKeys.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -278,7 +273,6 @@
 		};
 		A1B1C1DA0004 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BBF277782F61F5AD00871EFD /* ApiKeys.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

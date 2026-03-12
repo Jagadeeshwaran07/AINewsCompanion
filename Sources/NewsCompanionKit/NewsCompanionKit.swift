@@ -30,66 +30,11 @@ public enum NewsCompanionKit {
 
     /// Creates a GroqClient for the given config.
     static func makeAIClient(config: Config) -> any AICompleting {
-<<<<<<< Updated upstream
-        switch config.provider {
-        case .gemini:
-            return GeminiClient(
-                apiKey: config.apiKey,
-                model: config.model ?? "gemini-2.0-flash",
-                timeout: config.timeout
-            )
-        case .claude:
-            return ClaudeClient(
-                apiKey: config.apiKey,
-                model: config.model ?? "claude-sonnet-4-20250514",
-                timeout: config.timeout
-            )
-        case .openAI:
-            return OpenAIClient(
-                apiKey: config.apiKey,
-                model: config.model ?? "gpt-4o-mini",
-                timeout: config.timeout
-            )
-        case .groq:
-            return GroqClient(
-                apiKey: config.apiKey,
-                model: config.model ?? "llama-3.1-8b-instant",
-                timeout: config.timeout
-            )
-        case .huggingFace:
-            return HuggingFaceClient(
-                apiKey: config.apiKey,
-                model: config.model ?? "mistralai/Mistral-7B-Instruct-v0.3",
-                timeout: config.timeout
-            )
-        case .azureOpenAI:
-            let endpoint = config.azureEndpoint ?? ""
-            let deployment = config.model ?? "gpt-4o-mini"
-            return AzureOpenAIClient(endpoint: endpoint, deployment: deployment, apiKey: config.apiKey, timeout: config.timeout, additionalHeaders: config.additionalHeaders)
-        case .awsBedrock:
-            let endpoint: String
-            if let custom = config.awsEndpoint, !custom.isEmpty {
-                endpoint = custom
-            } else if let region = config.awsRegion, !region.isEmpty {
-                endpoint = "https://bedrock-runtime.\(region).amazonaws.com"
-            } else {
-                endpoint = "https://bedrock-runtime.us-east-1.amazonaws.com"
-            }
-            let modelId = config.model ?? "meta.llama3-2-3b-instruct-v1:0"
-            return AWSBedrockClient(endpoint: endpoint, modelId: modelId, apiKey: config.apiKey, timeout: config.timeout, additionalHeaders: config.additionalHeaders)
-        case .googleCloudVertex:
-            let project = config.gcpProject ?? ""
-            let location = config.gcpLocation ?? "us-central1"
-            let model = config.model ?? "gemini-1.5-flash"
-            return GoogleCloudVertexClient(project: project, location: location, model: model, apiKey: config.apiKey, timeout: config.timeout, additionalHeaders: config.additionalHeaders)
-        }
-=======
         return GroqClient(
             apiKey: config.apiKey,
             model: config.model ?? "llama-3.1-8b-instant",
             timeout: config.timeout
         )
->>>>>>> Stashed changes
     }
 
     /// Translates English text to the target language using Groq. Use for TTS when the target language is not English.
