@@ -6,28 +6,14 @@ import SummaryToAudio
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @StateObject private var playbackController = SummaryPlaybackController()
-    @State private var selectedProvider: AIProvider = Self.savedProvider()
     @State private var selectedTTSProvider: TTSProvider = Self.savedTTSProvider()
     @State private var selectedSarvamLanguage: SpeechLanguage = .english
     @State private var selectedElevenLabsLanguage: ElevenLabsLanguage = .english
     @State private var showLanguageSelection = false
     @ObservedObject private var speaker = SummaryToAudio.shared
 
-    private static let providerKey = "NewsCompanionSelectedProvider"
-    private static let providerBundleKeys: [AIProvider: String] = [
-        .gemini: "GEMINI_API_KEY",
-        .claude: "CLAUDE_API_KEY",
-        .openAI: "OPENAI_API_KEY",
-        .groq: "GROQ_API_KEY",
-        .huggingFace: "HUGGINGFACE_API_KEY",
-        .azureOpenAI: "AZURE_OPENAI_API_KEY",
-        .awsBedrock: "AWS_BEDROCK_ACCESS_KEY",
-        .googleCloudVertex: "GCP_VERTEX_API_KEY"
-    ]
-
-    static func resolveAPIKey(for provider: AIProvider) -> String? {
-        if let bundleKey = providerBundleKeys[provider],
-           let value = Bundle.main.object(forInfoDictionaryKey: bundleKey) as? String {
+    static func resolveAPIKey() -> String? {
+        if let value = Bundle.main.object(forInfoDictionaryKey: "GROQ_API_KEY") as? String {
             let trimmed = value.trimmingCharacters(in: .whitespaces)
             if !trimmed.isEmpty, !trimmed.hasPrefix("YOUR_") { return trimmed }
         }
@@ -62,23 +48,10 @@ struct ContentView: View {
         return t.isEmpty || t.hasPrefix("YOUR_") ? nil : t
     }
 
-    private var effectiveAPIKey: String? { Self.resolveAPIKey(for: selectedProvider) }
-
-    private static func savedProvider() -> AIProvider {
-        guard let raw = UserDefaults.standard.string(forKey: providerKey),
-              let provider = AIProvider(rawValue: raw) else { return .gemini }
-        return provider
-    }
-
     private static func savedTTSProvider() -> TTSProvider {
         guard let raw = UserDefaults.standard.string(forKey: "SummaryToAudioSelectedProvider"),
               let provider = TTSProvider(rawValue: raw) else { return .elevenLabs }
         return provider
-    }
-
-    private func saveProvider(_ provider: AIProvider) {
-        UserDefaults.standard.set(provider.rawValue, forKey: Self.providerKey)
-        selectedProvider = provider
     }
 
     private func saveTTSProvider(_ provider: TTSProvider) {
@@ -87,23 +60,6 @@ struct ContentView: View {
         speaker.stop()
         speaker.clearReplayCache()
         speaker.configure(provider: provider, sarvamLanguage: selectedSarvamLanguage, elevenLabsLanguage: selectedElevenLabsLanguage)
-    }
-
-    private func providerChip(_ provider: AIProvider) -> some View {
-        Button {
-            saveProvider(provider)
-        } label: {
-            Text(provider.displayName)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .lineLimit(1)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(selectedProvider == provider ? Color.accentColor : Color(.tertiarySystemFill))
-                .foregroundStyle(selectedProvider == provider ? .white : .primary)
-                .clipShape(Capsule())
-        }
-        .buttonStyle(.plain)
     }
 
     private var effectiveTTSLanguage: EffectiveTTSLanguage {
@@ -124,25 +80,9 @@ struct ContentView: View {
     }
 
     private var companionConfig: NewsCompanionKit.Config? {
-        guard let key = effectiveAPIKey else { return nil }
-        var config = NewsCompanionKit.Config(apiKey: key, provider: selectedProvider)
-        switch selectedProvider {
-        case .azureOpenAI:
-            if let v = Bundle.main.object(forInfoDictionaryKey: "AZURE_OPENAI_ENDPOINT") as? String, !v.isEmpty { config.azureEndpoint = v }
-            if let v = Bundle.main.object(forInfoDictionaryKey: "AZURE_OPENAI_DEPLOYMENT") as? String, !v.isEmpty { config.model = v }
-        case .awsBedrock:
-            if let v = Bundle.main.object(forInfoDictionaryKey: "AWS_REGION") as? String, !v.isEmpty { config.awsRegion = v }
-            if let v = Bundle.main.object(forInfoDictionaryKey: "AWS_ENDPOINT") as? String, !v.isEmpty { config.awsEndpoint = v }
-            if let v = Bundle.main.object(forInfoDictionaryKey: "AWS_MODEL_ID") as? String, !v.isEmpty { config.model = v }
-        case .googleCloudVertex:
-            if let v = Bundle.main.object(forInfoDictionaryKey: "GCP_PROJECT") as? String, !v.isEmpty { config.gcpProject = v }
-            if let v = Bundle.main.object(forInfoDictionaryKey: "GCP_LOCATION") as? String, !v.isEmpty { config.gcpLocation = v }
-            if let v = Bundle.main.object(forInfoDictionaryKey: "GCP_MODEL") as? String, !v.isEmpty { config.model = v }
-        default:
-            break
-        }
+        guard let key = Self.resolveAPIKey() else { return nil }
+        var config = NewsCompanionKit.Config(apiKey: key)
         if CompanionDebug.isEnabled { config.debugLog = { CompanionDebug.log($0) } }
-        // For cloud providers, optional extra HTTP headers: config.additionalHeaders = ["x-ms-tenant-id": "id"]
         return config
     }
 
@@ -153,31 +93,13 @@ struct ContentView: View {
                 .fontWeight(.semibold)
                 .padding(.top, 12)
 
-            if effectiveAPIKey == nil {
-                Text("API keys missing. Check ApiKeys.xcconfig.")
+            if Self.resolveAPIKey() == nil {
+                Text("Groq API key missing. Check ApiKeys.xcconfig.")
                     .font(.caption)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
                     .padding(.top, 4)
             }
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Summary client (AI)")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.secondary)
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(AIProvider.allCases, id: \.self) { provider in
-                            providerChip(provider)
-                        }
-                    }
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 4)
-                }
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 8)
 
             TabView {
                 App1ListView(config: companionConfig, articles: skyArticleList)
@@ -233,7 +155,6 @@ struct ContentView: View {
             )
             setElevenLabsTranslatorIfNeeded()
         }
-        .onChange(of: selectedProvider) { _, _ in setElevenLabsTranslatorIfNeeded() }
         .onChange(of: selectedTTSProvider) { _, _ in setElevenLabsTranslatorIfNeeded() }
         .onChange(of: selectedElevenLabsLanguage) { _, newLang in
             setElevenLabsTranslatorIfNeeded()
