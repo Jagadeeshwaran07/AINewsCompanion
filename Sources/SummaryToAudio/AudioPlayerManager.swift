@@ -27,7 +27,7 @@ public final class AudioPlayerManager: NSObject, ObservableObject, AVAudioPlayer
 
             #if os(iOS)
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .default, options: [.duckOthers, .defaultToSpeaker])
+            try session.setCategory(.playback, mode: .default, options: [.duckOthers])
             try session.setActive(true)
             #endif
 
